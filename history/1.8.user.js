@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Tieba Chat
-// @version     1.9
+// @version     1.8
 // @description Tieba Chat | 这是一个实现在网页端使用贴吧客户端聊天功能的脚本。通过该脚本，您可以与使用贴吧客户端的好友聊天
 // @match       http://tieba.baidu.com/*
 // @include     http://tieba.baidu.com/*
@@ -104,7 +104,7 @@ function get_message_update(){
 				throw 'Tieba Chat Error '+t.error_code+': '+t.error_msg;
 			}
 		}
-	};
+	}
 	xhr.open('POST','//tieba.baidu.com/c/s/msg?'+get_string());
 	xhr.send();
 }
@@ -150,7 +150,7 @@ function get_chatting_list(pn){
 					p.className='tb_chat_row';
 					p.setAttribute('user_id',t.record[c].user_id);
 					p.setAttribute('user_name',t.record[c].user_name)
-					p.innerHTML='<div class="tb_chat_pleft"><img class="tb_chat_avatar" src="http://tb.himg.baidu.com/sys/portrait/item/'+t.record[c].portrait+'" alt></div><div class="tb_chat_pright"><div class="tb_chat_username">'+t.record[c].user_name+(t.record[c].unread_count=='0'?'':' <small>('+t.record[c].unread_count+')</small>')+'</div><div class="tb_chat_lasttext">'+(t.record[c].abstract.length>0?t.record[c].abstract[t.record[c].abstract.length-1].text:'')+'</div></div><div style="clear:both"></div>';
+					p.innerHTML='<div class="tb_chat_pleft"><img class="tb_chat_avatar" src="http://tb.himg.baidu.com/sys/portrait/item/'+t.record[c].portrait+'" alt></div><div class="tb_chat_pright"><div class="tb_chat_username">'+t.record[c].user_name+'</div><div class="tb_chat_lasttext">'+(t.record[c].abstract.length>0?t.record[c].abstract[t.record[c].abstract.length-1].text:'')+'</div></div><div style="clear:both"></div>';
 					if(t.record[c].unread_count!='0'){
 						p.style.color='orange';
 						p.onclick=function(){
@@ -228,10 +228,11 @@ function get_chatting_list(pn){
 				var s=show_error(t.error_code,t.error_msg);
 				var t=setTimeout(function(){s.parentElement.removeChild(s);},5000);
 				s.onclick=function(){get_chatting_list(pn);s.parentElement.removeChild(s);clearTimeout(t);};
+
 				throw 'Tieba Chat Error '+t.error_code+': '+t.error_msg;
 			}
 		}
-	};
+	}
 	xhr.open('POST','//tieba.baidu.com/c/s/comlist?'+get_string({
 		//BDUSS:BDUSS,
 		_client_id:_client_id,
@@ -309,18 +310,17 @@ function get_latest_msg(id,silent){
 						msg_send.style.cssText='width:50px;height:25px;font-size:14px;line-height:25px;text-align:center;position:absolute;margin:15px 7px;right:0;top:0;background:#0CF;cursor:pointer;color:#FFF';
 						msg_send.textContent='发送';
 						msg_panel.appendChild(msg_send);
-						msg_send.onclick=function(){if(msg_textarea.value!='')add_message(id,this_last_msg,msg_textarea.value);};
+						msg_send.onclick=function(){add_message(id,this_last_msg,msg_textarea.value);};
 						msg_textarea.onfocus=function(event){
-							msg_textarea.onkeydown=function(event){if(event.ctrlKey==1&&event.keyCode==13&&msg_textarea.value!='')add_message(id,this_last_msg,msg_textarea.value);};
-						};
+							msg_textarea.onkeydown=function(event){if(event.ctrlKey==1&&event.keyCode==13)add_message(id,this_last_msg,msg_textarea.value);};
+						}
 						msg_textarea.onblur=function(){
 							msg_textarea.onkeydown=null;
-						};
+						}
 						window.onfocus=function(){if(this_msg_update==null)this_msg_update=setInterval(function(){if(document.getElementsByClassName('tb_chat_msg_panel')[0]&&panel.hasAttribute('show'))get_latest_msg(id)},10000);};
 						window.onblur=function(){if(this_msg_update!=null){clearInterval(this_msg_update);this_msg_update=null;}};
 						panel_top_left.textContent='←';
 						panel_top_right.textContent='≡';
-						msg_textarea.focus();
 						panel_top_right.onclick=function(){
 							switch(prompt('请键入以下数字并点击“确定”以完成对应操作：\n1. 清空当前用户全部聊天记录\n2. 从聊天列表内删除当前用户\n\n（比较简陋真是抱歉了 _(:з」∠)_ ）')){
 								case '1':
@@ -330,7 +330,7 @@ function get_latest_msg(id,silent){
 									delete_user(id);
 									break;
 							}
-						};
+						}
 						panel_top_left.onclick=function(){
 							get_chatting_list(chatting_list_page);
 							if(this_msg_update!=null){
@@ -412,7 +412,7 @@ function get_early_msg(id,panel_msg,msg_more){
 				throw 'Tieba Chat Error '+t.error_code+': '+t.error_msg;
 			}
 		}
-	};
+	}
 	xhr.open('POST','//tieba.baidu.com/c/s/historymsg?'+get_string({
 		//BDUSS:BDUSS,
 		_client_id:_client_id,
@@ -467,7 +467,6 @@ function add_message(id,last_msg_id,content){
 				if(parseInt(t.message.msg_id,10)>parseInt(this_last_msg,10)||this_last_msg==0)this_last_msg=t.message.msg_id;
 				panel_msg.scrollTop=panel_msg.scrollHeight;
 				document.getElementsByClassName('tb_chat_msg_textarea')[0].value='';
-				document.getElementsByClassName('tb_chat_msg_textarea')[0].focus();
 			}
 			else{
 				var s=show_error(t.error_code,t.error_msg);
@@ -476,7 +475,7 @@ function add_message(id,last_msg_id,content){
 				throw 'Tieba Chat Error '+t.error_code+': '+t.error_msg;
 			}
 		}
-	};
+	}
 	xhr.open('POST','//tieba.baidu.com/c/s/addmsg?'+get_string({
 		//BDUSS:BDUSS,
 		_client_id:_client_id,
@@ -594,7 +593,7 @@ function get_tbs(){
 	var xhr=new XMLHttpRequest();
 	xhr.onreadystatechange=function(){
 		if(xhr.readyState==4&&xhr.status==200)return JSON.parse(xhr.responseText).tbs;
-	};
+	}
 	xhr.open('GET','http://tieba.baidu.com/dc/common/tbs');
 	xhr.send();
 }
@@ -635,7 +634,7 @@ var panel_top_right=document.createElement('div');
 var panel_ifshow=null;
 var original_title=document.title;
 var ss=document.createElement('style');
-var stylesheet='.tb_chat_panel{width:400px;height:100%;position:fixed;top:calc(100% - 30px);right:0px;background:rgba(255,255,255,.75);z-index:200000;transition:all 0.5s ease-in;-webkit-user-select:none;-moz-user-select:none;border:1px solid #CCC;font-size:14px}.tb_chat_panel[show]{top:0px;transition:all 0.5s ease-out}.tb_chat_panel_top{font-size:14px;line-height:30px;text-align:center;width:100%;height:30px;-webkit-user-select:none;-moz-user-select:none;border-bottom:1px solid #CCC}.tb_chat_panel_top_left{position:absolute;left:10px;top:3px;width:24px;height:24px;line-height:24px;background:#0CF;opacity:0;color:#FFF;cursor:pointer;text-align:center;border-radius:50%;transition:all 0.5s ease-out}.tb_chat_panel[show] .tb_chat_panel_top_left{opacity:1;transition:all 0.5s ease-in}.tb_chat_panel_top_right{position:absolute;right:10px;top:3px;width:24px;height:24px;line-height:24px;background:#0CF;opacity:0;color:#FFF;cursor:pointer;text-align:center;border-radius:50%;transition:all 0.5s ease-out}.tb_chat_panel[show] .tb_chat_panel_top_right{opacity:1;transition:all 0.5s ease-in}.tb_chat_panel_main{height:calc(100% - 30px);overflow:auto}.tb_chat_row{/*width:400px;*/height:60px;padding:10px;cursor:pointer}.tb_chat_row:hover{background:rgba(0,0,0,.1)}.tb_chat_pleft{float:left}.tb_chat_row .tb_chat_avatar{width:60px;height:60px}.tb_chat_pright{float:left;max-width:300px}.tb_chat_row .tb_chat_username{font-size:14px;padding:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tb_chat_row .tb_chat_lasttext{padding:6px;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tb_chat_next{font-size:14px;text-align:center;width:100%;height:30px;line-height:30px}.tb_chat_message{font-size:12px;line-height:14px;min-height:28px;padding:5px}.tb_chat_message .tb_chat_avatar{width:28px;height:28px}.tb_chat_message.user .tb_chat_pleft,.tb_chat_message.user .tb_chat_pright{float:right;text-align:right}.tb_chat_message .tb_chat_message_inner{margin:0 10px;padding:6px;background:#FFF;border:1px solid #CCC;border-radius:3px;-moz-user-select:text;-webkit-user-select:text;text-align:left}.tb_chat_panel_msg{margin-bottom:50px;height:calc(100% - 50px);overflow:auto}.tb_chat_error{background:rgba(255,0,0,.25);font-size:12px;line-height:16px;position:fixed;width:350px;margin:0 25px;top:50px;right:0px;box-shadow:rgba(255,0,0,0.25) 0 0 5px;color:#F00}.tb_chat_message_inner::selection,.tb_chat_message_inner::-moz-selection{background:rgba(255,255,255,0.5)}.tb_chat_panel[model="1"] .tb_chat_panel_top,.tb_chat_panel[model="2"] .tb_chat_panel_top,.tb_chat_panel[model="2"] .tb_chat_row{color:red!important}.btn_sendmsg{animation:nodeInserted 0.01s;-webkit-animation:nodeInserted 0.01s;-o-animation:nodeInserted 0.01s;-ms-animation:nodeInserted 0.01s}@keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-webkit-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-o-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-ms-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}.btn_chat{cursor:pointer;margin-left:8px;background-image:url(http://imgsrc.baidu.com/forum/pic/item/c28b2d6d55fbb2fb8303a7d94d4a20a44723dcb3.jpg)!important;background-position:0 0!important}.btn_chat:hover{background-position:-86px 0!important}.btn_chat:active{background-position:-172px 0!important}.interaction_wrap_theme1 .btn_chat{background-position:0 -22px!important;width:70px!important}.interaction_wrap_theme1 .btn_chat:hover{background-position:-86px -22px!important}.interaction_wrap_theme1 .btn_chat:active{background-position:-172px -22px!important}';
+var stylesheet='.tb_chat_panel{width:400px;height:100%;position:fixed;top:calc(100% - 30px);right:0px;background:rgba(255,255,255,.75);z-index:200000;transition:all 0.5s ease-in;-webkit-user-select:none;-moz-user-select:none}.tb_chat_panel[show]{top:0px;transition:all 0.5s ease-out}.tb_chat_panel_top{font-size:14px;line-height:30px;text-align:center;width:100%;height:30px;-webkit-user-select:none;-moz-user-select:none}.tb_chat_panel_top_left{position:absolute;left:10px;top:0px;width:30px;height:30px;background:#0CF;visibility:hidden;color:#FFF;cursor:pointer;text-align:center}.tb_chat_panel[show] .tb_chat_panel_top_left{visibility:visible}.tb_chat_panel_top_right{position:absolute;right:10px;top:0px;width:30px;height:30px;background:#0CF;visibility:hidden;color:#FFF;cursor:pointer;text-align:center}.tb_chat_panel[show] .tb_chat_panel_top_right{visibility:visible}.tb_chat_panel_main{height:calc(100% - 30px);overflow:auto}.tb_chat_row{/*width:400px;*/height:60px;padding:10px;cursor:pointer}.tb_chat_row:hover{background:rgba(0,0,0,.1)}.tb_chat_pleft{float:left}.tb_chat_row .tb_chat_avatar{width:60px;height:60px}.tb_chat_pright{float:left;max-width:300px}.tb_chat_row .tb_chat_username{font-size:14px;padding:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tb_chat_row .tb_chat_lasttext{padding:6px;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tb_chat_next{font-size:14px;text-align:center;width:100%;height:30px;line-height:30px}.tb_chat_message{font-size:12px;line-height:14px;min-height:28px;padding:5px}.tb_chat_message .tb_chat_avatar{width:28px;height:28px}.tb_chat_message.user .tb_chat_pleft,.tb_chat_message.user .tb_chat_pright{float:right;text-align:right}.tb_chat_message .tb_chat_message_inner{margin:0 10px;padding:6px;background:#FFF;border:1px solid #CCC;border-radius:3px;-moz-user-select:text;-webkit-user-select:text}.tb_chat_panel_msg{margin-bottom:50px;height:calc(100% - 50px);overflow:auto}.tb_chat_error{background:rgba(255,0,0,.25);font-size:12px;line-height:16px;position:fixed;width:350px;margin:0 25px;top:50px;right:0px;box-shadow:rgba(255,0,0,0.25) 0 0 5px;color:#F00}.tb_chat_message_inner::selection,.tb_chat_message_inner::-moz-selection{background:rgba(255,255,255,0.5)}.tb_chat_panel[model="1"] .tb_chat_panel_top,.tb_chat_panel[model="2"] .tb_chat_panel_top,.tb_chat_panel[model="2"] .tb_chat_row{color:red!important}.btn_sendmsg{animation:nodeInserted 0.01s;-webkit-animation:nodeInserted 0.01s;-o-animation:nodeInserted 0.01s;-ms-animation:nodeInserted 0.01s}@keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-webkit-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-o-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-ms-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}.btn_chat{cursor:pointer;margin-left:8px;background-image:url(http://imgsrc.baidu.com/forum/pic/item/fa5ca264034f78f03983b23b7b310a55b1191c9a.jpg)!important;background-position:0 0!important}.btn_chat:hover{background-position:-86px 0!important}.btn_chat:active{background-position:-172px 0!important}';
 panel.className='tb_chat_panel';
 document.body.appendChild(panel);
 ss.textContent=stylesheet;
@@ -670,7 +669,7 @@ panel.onmouseout=function(){
 panel_top_left.onclick=function(){
 	var username=prompt('请输入用户名以发起聊天');
 	if(username!=null&&username!='')get_userid(username);
-};
+}
 get_chatting_list(chatting_list_page);
 document.addEventListener('animationstart',insert_chat_button,false);
 document.addEventListener('MSAnimationStart',insert_chat_button,false);
