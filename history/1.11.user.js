@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Tieba Chat
-// @version     1.12
+// @version     1.11
 // @description Tieba Chat | 这是一个实现在网页端使用贴吧客户端聊天功能的脚本。通过该脚本，您可以与使用贴吧客户端的好友聊天
 // @match       http://tieba.baidu.com/*
 // @include     http://tieba.baidu.com/*
@@ -641,9 +641,7 @@ function get_userid(username){
 			var t=JSON.parse(xhr.responseText);
 			if(t.no==0){
 				this_username=username;
-				this_last_msg=0;
-				this_early_msg=0;
-				//this_userid=t.data.id;
+				this_userid=t.data.id;
 				get_latest_msg(t.data.id);
 			}
 			else{
@@ -741,11 +739,7 @@ function insert_chat_button(event){
 		var node=event.target;
 		button.className='btn_chat';
 		node.parentElement.insertBefore(button,node);
-		button.onclick=function(){
-			if(document.getElementById('user_visit_card'))get_userid(JSON.parse(document.getElementById('user_visit_card').getAttribute('data-field')).un);
-			else if(PageData.product=='ihome')get_userid(ihome.Interaction.dataObj.un);
-			panel.setAttribute('show','1');
-		};
+		button.onclick=function(){get_userid(JSON.parse(node.parentElement.parentElement.parentElement.parentElement.getAttribute('data-field')).un);panel.setAttribute('show','1');};
 	}
 }
 
