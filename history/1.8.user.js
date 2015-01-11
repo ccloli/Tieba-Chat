@@ -9,8 +9,6 @@
 // @run-at      document-end
 // @grant       none
 // @noframes
-// @updateURL   https://raw.githubusercontent.com/ccloli/Tieba-Chat/master/tb_chat.user.js
-// @downloadURL https://raw.githubusercontent.com/ccloli/Tieba-Chat/master/tb_chat.user.js
 // @namespace   http://ext.ccloli.com
 // ==/UserScript==
 

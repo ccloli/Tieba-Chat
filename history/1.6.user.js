@@ -9,10 +9,6 @@
 // @run-at      document-end
 // @grant       none
 // @noframes
-// @updateURL   https://raw.githubusercontent.com/ccloli/Tieba-Chat/master/tb_chat.user.js
-// @downloadURL https://raw.githubusercontent.com/ccloli/Tieba-Chat/master/tb_chat.user.js
-// @updateURL   https://greasyfork.org/scripts/1255/code.meta.js
-// @downloadURL https://greasyfork.org/scripts/1255/code.user.js
 // @namespace   http://ext.ccloli.com
 // ==/UserScript==
 

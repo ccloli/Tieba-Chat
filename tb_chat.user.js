@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Tieba Chat
-// @version     1.12
+// @version     1.13
 // @description Tieba Chat | 这是一个实现在网页端使用贴吧客户端聊天功能的脚本。通过该脚本，您可以与使用贴吧客户端的好友聊天
 // @match       http://tieba.baidu.com/*
 // @include     http://tieba.baidu.com/*
@@ -186,6 +186,11 @@ function get_string(c){
 	return str2;
 }
 
+function get_locale_time(t){
+	var time = new Date(t * 1000);
+	return (time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + ' ' + time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds());
+}
+
 function get_message_update(){
 	var xhr=new XMLHttpRequest();
 	xhr.onreadystatechange=function(){
@@ -206,7 +211,7 @@ function get_message_update(){
 				}
 				else{
 					document.title=original_title;
-					panel_top.style.color='#000';
+					panel_top.style.color='#414243';
 				}
 				window.localStorage.setItem('tb_chat_message_update_timestamp',message_update_timestamp);
 				window.localStorage.setItem('tb_chat_message_update_count',t.message.pletter);
@@ -255,7 +260,7 @@ function get_chatting_list(pn){
 				if(pn>1){
 					var msg_more=document.createElement('div');
 					msg_more.textContent='点击加载上一页';
-					msg_more.style.cssText='width:200px;margin:20px auto;text-align:center;font-size:13px;background:#0CF;padding:5px;-webkit-user-select:none;-moz-user-select:none;cursor:pointer;color:#FFF';
+					msg_more.style.cssText='width:200px;margin:20px auto;text-align:center;font-size:13px;background:#5b97ff;padding:5px;-webkit-user-select:none;-moz-user-select:none;cursor:pointer;color:#ffffff';
 					panel_list.appendChild(msg_more);
 					msg_more.onclick=function(){get_chatting_list(pn-1);msg_more.textContent='正在载入......';};
 				}
@@ -268,7 +273,7 @@ function get_chatting_list(pn){
 					if(t.record[c].unread_count!='0'){
 						p.style.color='orange';
 						p.onclick=function(){
-							panel_top.style.color='#000';
+							panel_top.style.color='#414243';
 							switch(model){
 								case 0:
 									this_userid=this.getAttribute('user_id');
@@ -277,7 +282,7 @@ function get_chatting_list(pn){
 									break;
 								case 1:
 									get_latest_msg(this.getAttribute('user_id'),true);
-									this.style.color='#000';
+									this.style.color='#414243';
 									break;
 								case 2:
 									delete_user(this.getAttribute('user_id'),true);
@@ -305,7 +310,7 @@ function get_chatting_list(pn){
 				if(t.has_more==1){
 					var msg_more=document.createElement('div');
 					msg_more.textContent='点击加载下一页';
-					msg_more.style.cssText='width:200px;margin:20px auto;text-align:center;font-size:13px;background:#0CF;padding:5px;-webkit-user-select:none;-moz-user-select:none;cursor:pointer;color:#FFF';
+					msg_more.style.cssText='width:200px;margin:20px auto;text-align:center;font-size:13px;background:#5b97ff;padding:5px;-webkit-user-select:none;-moz-user-select:none;cursor:pointer;color:#ffffff';
 					panel_list.appendChild(msg_more);
 					msg_more.onclick=function(){get_chatting_list(pn+1);msg_more.textContent='正在载入......';};
 				}
@@ -333,6 +338,7 @@ function get_chatting_list(pn){
 							get_chatting_list(pn);
 					}
 				}
+				panel_main.scrollTop = 0;
 				this_last_msg=0;
 				this_early_msg=0;
 				this_username=null;
@@ -387,7 +393,7 @@ function get_latest_msg(id,silent){
 						if(t.has_more==1){
 							var msg_more=document.createElement('div');
 							msg_more.textContent='点击加载更多';
-							msg_more.style.cssText='width:200px;margin:20px auto;text-align:center;font-size:13px;background:#0CF;padding:5px;-webkit-user-select:none;-moz-user-select:none;cursor:pointer;color:#FFF';
+							msg_more.style.cssText='width:200px;margin:20px auto;text-align:center;font-size:13px;background:#5b97ff;padding:5px;-webkit-user-select:none;-moz-user-select:none;cursor:pointer;color:#ffffff';
 							panel_msg.appendChild(msg_more);
 							msg_more.onclick=function(){get_early_msg(id,panel_msg,msg_more);};
 						}
@@ -403,7 +409,7 @@ function get_latest_msg(id,silent){
 								p.innerHTML='<div class="tb_chat_pleft"><img class="tb_chat_avatar" src="http://tb.himg.baidu.com/sys/portrait/item/'+user_portrait+'" alt></div><div class="tb_chat_pright"><div class="tb_chat_message_inner">'+(t.message[c].content[0].text.replace(emo_regex,function(m,n){return '<img src="'+emo_list[n]+'" class="tb_chat_message_emo">'})||'未知数据')+'</div></div><div style="clear:both"></div>';
 							}
 							p.setAttribute('msg_id',t.message[c].msg_id);
-							p.title='Post @ '+new Date(t.message[c].time*1000);
+							p.title='Post @ '+get_locale_time(t.message[c].time);
 							panel_msg.appendChild(p);
 							if(parseInt(t.message[c].msg_id,10)<parseInt(this_early_msg,10)||this_early_msg==0)this_early_msg=t.message[c].msg_id;
 							if(parseInt(t.message[c].msg_id,10)>parseInt(this_last_msg,10)||this_last_msg==0)this_last_msg=t.message[c].msg_id;
@@ -416,18 +422,18 @@ function get_latest_msg(id,silent){
 						var msg_panel=document.createElement('div');
 						var msg_textarea=document.createElement('textarea');
 						var msg_send=document.createElement('div');
-						msg_panel.style.cssText='width:100%;height:80px;position:absolute;bottom:0;left:0';
+						msg_panel.style.cssText='width:100%;height:100px;position:absolute;bottom:0;left:0';
 						msg_panel.className='tb_chat_msg_panel';
 						panel_main.appendChild(msg_panel);
-						msg_textarea.style.cssText='width:385px;height:36px;font-size:12px;margin:7px;position:absolute;left:0;top:0;resize:none';
+						msg_textarea.style.cssText='width:385px;height:52px;font-size:13px;line-height: 1.5em;margin:7px;padding: 5px;box-sizing: border-box;position:absolute;left:0;top:0;resize:none';
 						msg_textarea.className='tb_chat_msg_textarea';
 						msg_panel.appendChild(msg_textarea);
-						msg_send.style.cssText='width:50px;height:25px;font-size:14px;line-height:25px;text-align:center;position:absolute;right:6px;bottom:5px;background:#0CF;cursor:pointer;color:#FFF';
+						msg_send.style.cssText='width:50px;height:25px;font-size:14px;line-height:25px;text-align:center;position:absolute;right:6px;bottom:8px;background:#5b97ff;cursor:pointer;color:#ffffff';
 						msg_send.textContent='发送';
 						msg_panel.appendChild(msg_send);
 						var panel_emoji=document.createElement('div');
 						var msg_emoji=document.createElement('div');
-						msg_emoji.style.cssText='width:50px;height:25px;font-size:14px;line-height:25px;text-align:center;position:absolute;right:66px;bottom:5px;background:#0CF;cursor:pointer;color:#FFF';
+						msg_emoji.style.cssText='width:50px;height:25px;font-size:14px;line-height:25px;text-align:center;position:absolute;right:66px;bottom:8px;background:#5b97ff;cursor:pointer;color:#ffffff';
 						msg_emoji.textContent='表情';
 						msg_panel.appendChild(msg_emoji);
 						panel_emoji.className='tb_chat_msg_emoji';
@@ -529,7 +535,7 @@ function get_early_msg(id,panel_msg,msg_more){
 						p.innerHTML='<div class="tb_chat_pleft"><img class="tb_chat_avatar" src="http://tb.himg.baidu.com/sys/portrait/item/'+user_portrait+'" alt></div><div class="tb_chat_pright"><div class="tb_chat_message_inner">'+(t.message[c].content[0].text.replace(emo_regex,function(m,n){return '<img src="'+emo_list[n]+'" class="tb_chat_message_emo">'})||'未知数据')+'</div></div><div style="clear:both"></div>';
 					}
 					p.setAttribute('msg_id',t.message[c].msg_id);
-					p.title='Post @ '+new Date(t.message[c].time*1000);
+					p.title='Post @ '+get_locale_time(t.message[c].time);
 					if(parseInt(t.message[c].msg_id,10)<parseInt(this_early_msg,10)||this_early_msg==0)this_early_msg=t.message[c].msg_id;
 					if(parseInt(t.message[c].msg_id,10)>parseInt(this_last_msg,10)||this_last_msg==0)this_last_msg=t.message[c].msg_id;
 					xxx.appendChild(p);
@@ -586,7 +592,7 @@ function add_message(id,last_msg_id,content){
 						p.innerHTML='<div class="tb_chat_pleft"><img class="tb_chat_avatar" src="http://tb.himg.baidu.com/sys/portrait/item/'+user_portrait+'" alt></div><div class="tb_chat_pright"><div class="tb_chat_message_inner">'+(t.recent.message[c].content[0].text.replace(emo_regex,function(m,n){return '<img src="'+emo_list[n]+'" class="tb_chat_message_emo">'})||'未知数据')+'</div></div><div style="clear:both"></div>';
 					}
 					p.setAttribute('msg_id',t.recent.message[c].msg_id);
-					p.title='Post @ '+new Date(t.recent.message[c].time*1000);
+					p.title='Post @ '+get_locale_time(t.recent.message[c].time);
 					panel_msg.appendChild(p);
 					if(parseInt(t.recent.message[c].msg_id,10)<parseInt(this_early_msg,10)||this_early_msg==0)this_early_msg=t.recent.message[c].msg_id;
 					if(parseInt(t.recent.message[c].msg_id,10)>parseInt(this_last_msg,10)||this_last_msg==0)this_last_msg=t.recent.message[c].msg_id;
@@ -759,7 +765,7 @@ var message_update_timer=setInterval(function(){
 	}
 	else{
 		document.title=original_title;
-		panel_top.style.color='#000';
+		panel_top.style.color='#414243';
 	}
 },1000);
 
@@ -775,7 +781,7 @@ var panel_top_right=document.createElement('div');
 var panel_ifshow=null;
 var original_title=document.title;
 var ss=document.createElement('style');
-var stylesheet='.tb_chat_panel{width:400px;height:100%;position:fixed;top:calc(100% - 30px);right:0px;background:rgba(255,255,255,.75);z-index:200000;transition:all 0.5s ease-in;-webkit-user-select:none;-moz-user-select:none;border:1px solid #CCC;font-size:14px}.tb_chat_panel[show]{top:0px;transition:all 0.5s ease-out}.tb_chat_panel_top{font-size:14px;line-height:30px;text-align:center;width:100%;height:30px;-webkit-user-select:none;-moz-user-select:none;border-bottom:1px solid #CCC}.tb_chat_panel_top_left{position:absolute;left:10px;top:3px;width:24px;height:24px;line-height:24px;background:#0CF;opacity:0;color:#FFF;cursor:pointer;text-align:center;border-radius:50%;transition:all 0.5s ease-out}.tb_chat_panel[show] .tb_chat_panel_top_left{opacity:1;transition:all 0.5s ease-in}.tb_chat_panel_top_right{position:absolute;right:10px;top:3px;width:24px;height:24px;line-height:24px;background:#0CF;opacity:0;color:#FFF;cursor:pointer;text-align:center;border-radius:50%;transition:all 0.5s ease-out}.tb_chat_panel[show] .tb_chat_panel_top_right{opacity:1;transition:all 0.5s ease-in}.tb_chat_panel_main{height:calc(100% - 30px);overflow:auto}.tb_chat_row{/*width:400px;*/height:60px;padding:10px;cursor:pointer}.tb_chat_row:hover{background:rgba(0,0,0,.1)}.tb_chat_pleft{float:left}.tb_chat_row .tb_chat_avatar{width:60px;height:60px}.tb_chat_pright{float:left;max-width:300px}.tb_chat_row .tb_chat_username{font-size:14px;padding:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tb_chat_row .tb_chat_lasttext{padding:6px;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tb_chat_next{font-size:14px;text-align:center;width:100%;height:30px;line-height:30px}.tb_chat_message{font-size:12px;line-height:14px;min-height:28px;padding:5px}.tb_chat_message .tb_chat_avatar{width:28px;height:28px}.tb_chat_message.user .tb_chat_pleft,.tb_chat_message.user .tb_chat_pright{float:right;text-align:right}.tb_chat_message .tb_chat_message_inner{margin:0 10px;padding:6px;background:#FFF;border:1px solid #CCC;border-radius:3px;-moz-user-select:text;-webkit-user-select:text;text-align:left}.tb_chat_panel_msg{margin-bottom:80px;height:calc(100% - 80px);overflow:auto}.tb_chat_error{background:rgba(255,0,0,.25);font-size:12px;line-height:16px;position:fixed;width:350px;margin:0 25px;top:50px;right:0px;box-shadow:rgba(255,0,0,0.25) 0 0 5px;color:#F00}.tb_chat_message_inner::selection,.tb_chat_message_inner::-moz-selection{background:rgba(255,255,255,0.5)}.tb_chat_panel[model="1"] .tb_chat_panel_top,.tb_chat_panel[model="2"] .tb_chat_panel_top,.tb_chat_panel[model="2"] .tb_chat_row{color:red!important}.btn_sendmsg{animation:nodeInserted 0.01s;-webkit-animation:nodeInserted 0.01s;-o-animation:nodeInserted 0.01s;-ms-animation:nodeInserted 0.01s}@keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-webkit-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-o-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}@-ms-keyframes nodeInserted{from{background-color:#FFF}to{background-color:#EEE}}.btn_chat{cursor:pointer;margin-left:8px;background-image:url(http://imgsrc.baidu.com/forum/pic/item/c28b2d6d55fbb2fb8303a7d94d4a20a44723dcb3.jpg)!important;background-position:0 0!important}.btn_chat:hover{background-position:-86px 0!important}.btn_chat:active{background-position:-172px 0!important}.interaction_wrap_theme1 .btn_chat{background-position:0 -22px!important;width:70px!important}.interaction_wrap_theme1 .btn_chat:hover{background-position:-86px -22px!important}.interaction_wrap_theme1 .btn_chat:active{background-position:-172px -22px!important}.tb_chat_message_emo,.tb_chat_msg_emoji img{width:20px;height:20px}.tb_chat_msg_emoji img{cursor:pointer}.tb_chat_msg_emoji{width:380px;height:140px;padding:9px;border:1px solid #CCC;position:absolute;bottom:80px;background:#FFF;transition:all 0.1s linear;opacity:0;pointer-events:none}.tb_chat_msg_emoji[show]{opacity:1;pointer-events:auto}';
+var stylesheet='.tb_chat_panel{width:400px;height:100%;position:fixed;top:calc(100% - 30px);right:0px;background:rgba(255,255,255,.85);z-index:200000;transition:all 0.5s /*ease-in*/cubic-bezier(.5,0,.8,1);-webkit-user-select:none;-moz-user-select:none;border:1px solid #cccccc;font-size:14px;color:#414243}.tb_chat_panel[show]{top:0px;transition:all 0.5s /*ease-out*/cubic-bezier(0,.5,.8,1)}.tb_chat_panel_top{font-size:14px;line-height:30px;text-align:center;width:100%;height:30px;-webkit-user-select:none;-moz-user-select:none;border-bottom:1px solid #cccccc}.tb_chat_panel_top_left{position:absolute;left:10px;top:3px;width:24px;height:24px;line-height:24px;background:#5b97ff;opacity:0;color:#ffffff;cursor:pointer;text-align:center;border-radius:50%;transition:all 0.5s ease-out}.tb_chat_panel[show] .tb_chat_panel_top_left{opacity:1;transition:all 0.5s ease-in}.tb_chat_panel_top_right{position:absolute;right:10px;top:3px;width:24px;height:24px;line-height:24px;background:#5b97ff;opacity:0;color:#ffffff;cursor:pointer;text-align:center;border-radius:50%;transition:all 0.5s ease-out}.tb_chat_panel[show] .tb_chat_panel_top_right{opacity:1;transition:all 0.5s ease-in}.tb_chat_panel_main{height:calc(100% - 30px);overflow:auto}.tb_chat_row{/*width:400px;*/height:60px;padding:10px;cursor:pointer}.tb_chat_row:hover{background:rgba(0,0,0,.1)}.tb_chat_pleft{float:left}.tb_chat_row .tb_chat_avatar{width:60px;height:60px}.tb_chat_pright{float:left;max-width:300px}.tb_chat_row .tb_chat_username{font-size:14px;padding:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tb_chat_row .tb_chat_lasttext{padding:6px;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tb_chat_next{font-size:14px;text-align:center;width:100%;height:30px;line-height:30px}.tb_chat_message{font-size:13px;line-height:1.5em;min-height:28px;padding:5px}.tb_chat_message .tb_chat_avatar{width:32px;height:32px}.tb_chat_message.user .tb_chat_pleft,.tb_chat_message.user .tb_chat_pright{float:right;text-align:justify}.tb_chat_message .tb_chat_message_inner{margin:0 10px;padding:6px;background:#ffffff;border:1px solid #cccccc;border-radius:3px;-moz-user-select:text;-webkit-user-select:text;text-align:justify;overflow:hidden}.tb_chat_panel_msg{margin-bottom:100px;height:calc(100% - 100px);overflow:auto}.tb_chat_error{background:rgba(255,0,0,.25);font-size:12px;line-height:16px;position:fixed;width:350px;margin:0 25px;top:50px;right:0px;box-shadow:rgba(255,0,0,0.25) 0 0 5px;color:#ffffff;padding:5px;box-sizing:border-box}.tb_chat_message_inner::selection,.tb_chat_message_inner::-moz-selection{background:rgba(255,255,255,0.5)}.tb_chat_panel[model="1"] .tb_chat_panel_top,.tb_chat_panel[model="2"] .tb_chat_panel_top,.tb_chat_panel[model="2"] .tb_chat_row{color:red!important}.btn_sendmsg{animation:nodeInserted 0.01s;-webkit-animation:nodeInserted 0.01s;-o-animation:nodeInserted 0.01s;-ms-animation:nodeInserted 0.01s}@keyframes nodeInserted{from{opacity:1}to{opacity:1}}@-webkit-keyframes nodeInserted{from{opacity:1}to{opacity:1}}@-o-keyframes nodeInserted{from{opacity:1}to{opacity:1}}@-ms-keyframes nodeInserted{from{opacity:1}to{opacity:1}}.btn_chat{cursor:pointer;margin-left:8px;background-image:url(http://imgsrc.baidu.com/forum/pic/item/c28b2d6d55fbb2fb8303a7d94d4a20a44723dcb3.jpg)!important;background-position:0 0!important}.btn_chat:hover{background-position:-86px 0!important}.btn_chat:active{background-position:-172px 0!important}.interaction_wrap_theme1 .btn_chat{background-position:0 -22px!important;width:70px!important}.interaction_wrap_theme1 .btn_chat:hover{background-position:-86px -22px!important}.interaction_wrap_theme1 .btn_chat:active{background-position:-172px -22px!important}.tb_chat_message_emo,.tb_chat_msg_emoji img{width:20px;height:20px}.tb_chat_msg_emoji img{cursor:pointer}.tb_chat_msg_emoji{width:380px;height:140px;padding:9px;border:1px solid #cccccc;position:absolute;bottom:100px;background:#ffffff;transition:all 0.1s linear;opacity:0;pointer-events:none}.tb_chat_msg_emoji[show]{opacity:1;pointer-events:auto}';
 panel.className='tb_chat_panel';
 document.body.appendChild(panel);
 ss.textContent=stylesheet;
