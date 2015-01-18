@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Tieba Chat
-// @version     1.14
+// @version     1.13
 // @description Tieba Chat | 这是一个实现在网页端使用贴吧客户端聊天功能的脚本。通过该脚本，您可以与使用贴吧客户端的好友聊天
 // @match       http://tieba.baidu.com/*
 // @include     http://tieba.baidu.com/*
@@ -9,8 +9,6 @@
 // @run-at      document-end
 // @grant       none
 // @noframes
-// @updateURL   https://raw.githubusercontent.com/ccloli/Tieba-Chat/master/tb_chat.user.js
-// @downloadURL https://raw.githubusercontent.com/ccloli/Tieba-Chat/master/tb_chat.user.js
 // @namespace   http://ext.ccloli.com
 // ==/UserScript==
 
@@ -398,7 +396,6 @@ function get_latest_msg(id,silent){
 							msg_more.onclick=function(){get_early_msg(id,panel_msg,msg_more);};
 						}
 						for(var c in t.message){
-							if(t.message[c].content.length==0)continue;
 							var p=document.createElement('div');
 							p.className='tb_chat_message';
 							if(t.message[c].from=='0'){
@@ -525,7 +522,6 @@ function get_early_msg(id,panel_msg,msg_more){
 				//console.log(this_early_msg+'|'+this_last_msg);
 				panel_msg.insertBefore(xxx,msg_more.nextElementSibling);
 				for(var c in t.message){
-					if(t.message[c].content.length==0)continue;
 					var p=document.createElement('div');
 					p.className='tb_chat_message';
 					if(t.message[c].from=='0'){
@@ -583,7 +579,6 @@ function add_message(id,last_msg_id,content){
 				}
 				var panel_msg=document.getElementsByClassName('tb_chat_panel_msg')[0];
 				for(var c in t.recent.message){
-					if(t.recent.message[c].content.length==0)continue;
 					var p=document.createElement('div');
 					p.className='tb_chat_message';
 					if(t.recent.message[c].from=='0'){
@@ -605,7 +600,6 @@ function add_message(id,last_msg_id,content){
 				p.className+=' user';
 				p.innerHTML='<div class="tb_chat_pleft"><img class="tb_chat_avatar" src="http://tb.himg.baidu.com/sys/portrait/item/'+user_portrait+'" alt></div><div class="tb_chat_pright"><div class="tb_chat_message_inner">'+(t.message.content[0].text.replace(emo_regex,function(m,n){return '<img src="'+emo_list[n]+'" class="tb_chat_message_emo">'})||'未知数据')+'</div></div><div style="clear:both"></div>';
 				p.setAttribute('msg_id',t.message.msg_id);
-				p.title='Post @ '+get_locale_time(t.message.time);
 				panel_msg.appendChild(p);
 				if(parseInt(t.message.msg_id,10)<parseInt(this_early_msg,10)||this_early_msg==0)this_early_msg=t.message.msg_id;
 				if(parseInt(t.message.msg_id,10)>parseInt(this_last_msg,10)||this_last_msg==0)this_last_msg=t.message.msg_id;
@@ -741,7 +735,7 @@ function get_tbs(){
 	xhr.onreadystatechange=function(){
 		if(xhr.readyState==4&&xhr.status==200)return JSON.parse(xhr.responseText).tbs;
 	};
-	xhr.open('GET','//tieba.baidu.com/dc/common/tbs');
+	xhr.open('GET','http://tieba.baidu.com/dc/common/tbs');
 	xhr.send();
 }
 
